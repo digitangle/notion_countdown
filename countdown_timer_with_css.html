@@ -12,7 +12,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: white;
         }
         #countdown {
             text-align: center;
@@ -51,8 +51,15 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            document.getElementById('time-remaining').innerHTML =
-                `${hours}h ${minutes}m ${seconds}s`;
+            const countdownElement = document.getElementById('time-remaining');
+            countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+
+            // Change color when less than 10 minutes remaining
+            if (diff < 10 * 60 * 1000) {
+                countdownElement.style.color = 'red';
+            } else {
+                countdownElement.style.color = '#333';
+            }
 
             // Update the countdown every second
             setTimeout(updateCountdown, 1000);
