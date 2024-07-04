@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Countdown Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+        }
+        #countdown {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+        }
+        #countdown .label {
+            font-size: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        #countdown .time {
+            font-size: 3em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label for="deadline">Enter your deadline (YYYY-MM-DD HH:MM:SS):</label>
+        <input type="datetime-local" id="deadline">
+        <button onclick="startCountdown()">Start Countdown</button>
+    </div>
+    <div id="countdown">
+        <div class="label">Time until deadline:</div>
+        <div class="time" id="time-remaining"></div>
+    </div>
+
+    <script>
+        let brownNoise;
+
+        function createBrownNoise() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = 10 * audioCtx.sampleRate;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let lastOut = 0.0;
+
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                data[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = data[i];
+                data[i] *= 3.5; // (roughly) compensate for gain
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            noise.connect(audioCtx.destination);
+            return noise;
+        }
+
+        function startCountdown() {
+            const deadlineInput = document.getElementById('deadline').value;
+            if (!deadlineInput) {
+                alert('Please enter a valid deadline.');
+                return;
+            }
+
+            const deadline = new Date(deadlineInput);
+            brownNoise = createBrownNoise();
+            brownNoise.start();
+
+            function updateCountdown() {
+                const now = new Date();
+                let diff = deadline - now;
+
+                if (diff < 0) {
+                    document.getElementById('time-remaining').innerHTML = 'Deadline reached!';
+                    brownNoise.stop();
+                    return;
+                }
+
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('time-remaining').innerHTML =
+                    `${hours}h ${minutes}m ${seconds}s`;
+
+                // Update the countdown every second
+                setTimeout(updateCountdown, 1000);
+            }
+
+            updateCountdown();
+        }
+    </script>
+</body>
+</html>
