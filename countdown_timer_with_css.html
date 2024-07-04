@@ -12,7 +12,8 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: white; /* Default to white */
+            transition: background-color 0.5s ease; /* Smooth transition */
         }
         #countdown {
             font-size: 2em;
@@ -42,6 +43,15 @@
 
             document.getElementById('countdown').innerHTML =
                 `Time until 3 PM: ${hours}h ${minutes}m ${seconds}s`;
+
+            // Update background color based on time
+            if (hours < 1 && minutes < 40) {
+                document.body.style.backgroundColor = 'red'; // Less than 20 minutes
+            } else if (hours < 1) {
+                document.body.style.backgroundColor = 'orange'; // Less than 1 hour
+            } else if (hours < 2) {
+                document.body.style.backgroundColor = 'white'; // Default color
+            }
 
             // Update the countdown every second
             setTimeout(updateCountdown, 1000);
